@@ -5,51 +5,37 @@ on:
     branches:
       - main
   pull_request:
-  workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
   actions: read
-
-concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  unit-tests:
+  main:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Instal deps and run unit tests
-        run: |
-          pnpm ci
-          pnpm run test
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: [unit-tests]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
         with:
-          fetch-depth: 0
+          version: 8
+
+      # Connect your workspace on nx.app and uncomment this to enable task distribution.
+      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
+      # - run: pnpm dlx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+
+      # Cache node_modules
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: npx nx-cloud record -- nx format:check
-      - run: npx nx affected -t lint test build e2e-ci
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: 'dist/apps/wordnica/client'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+
+      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
+      # - run: pnpm exec nx-cloud record -- echo Hello World
+      - run: pnpm exec nx affected -t lint test build
+      # - run: pnpm exec nx affected --parallel 1 -t e2e-ci

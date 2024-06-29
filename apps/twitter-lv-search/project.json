@@ -1,0 +1,121 @@
+{
+  "name": "twitter-lv-search",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/twitter-lv-search/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/twitter-lv-search",
+        "index": "apps/twitter-lv-search/src/index.html",
+        "browser": "apps/twitter-lv-search/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/twitter-lv-search/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/twitter-lv-search/public"
+          }
+        ],
+        "styles": ["apps/twitter-lv-search/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "twitter-lv-search:build:production"
+        },
+        "development": {
+          "buildTarget": "twitter-lv-search:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "twitter-lv-search:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "apps/twitter-lv-search/.storybook",
+        "browserTarget": "twitter-lv-search:build",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/twitter-lv-search",
+        "configDir": "apps/twitter-lv-search/.storybook",
+        "browserTarget": "twitter-lv-search:build",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "test-storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test-storybook -c apps/twitter-lv-search/.storybook --url=http://localhost:4400"
+      }
+    },
+    "static-storybook": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "twitter-lv-search:build-storybook",
+        "staticFilePath": "dist/storybook/twitter-lv-search",
+        "spa": true
+      },
+      "configurations": {
+        "ci": {
+          "buildTarget": "twitter-lv-search:build-storybook:ci"
+        }
+      }
+    }
+  }
+}
